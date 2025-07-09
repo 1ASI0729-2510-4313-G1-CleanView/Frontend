@@ -15,6 +15,7 @@ import {SensorShowInfoComponent} from "../components/sensor-show-info/sensor-sho
 import {SensorDeleteComponent} from "../components/sensor-delete/sensor-delete.component";
 import {MatIcon} from "@angular/material/icon";
 import {StoreDeleteComponent} from "../components/store-delete/store-delete.component";
+import {AuthService} from "../../users/services/auth.service";
 
 @Component({
   selector: 'app-controlPanel',
@@ -41,6 +42,8 @@ import {StoreDeleteComponent} from "../components/store-delete/store-delete.comp
 export class ControlPanelComponent implements AfterViewInit, OnInit{
   name = 'controlPanel';
 
+  currentUserId: number | null = null;
+
   @ViewChild(SensorCreateAndEditComponent) sensorCreateAndEditComponent!: SensorCreateAndEditComponent;
   @ViewChild(SensorShowInfoComponent) sensorShowInfoComponent!: SensorShowInfoComponent;
   @ViewChild(SensorDeleteComponent) sensorDeleteComponent!: SensorDeleteComponent;
@@ -59,7 +62,7 @@ export class ControlPanelComponent implements AfterViewInit, OnInit{
   private sensorService = inject(SensorApiService);
   private wasteService = inject(WasteApiService);
 
-  constructor() {
+  constructor(private authService: AuthService) {
     this.storeData = new Store({})
     this.sensorData = new Sensor({})
     this.waste = new Waste({})
@@ -69,10 +72,10 @@ export class ControlPanelComponent implements AfterViewInit, OnInit{
   }
 
   ngOnInit() {
+    this.currentUserId = this.authService.currentUserValue?.id || null;
     this.storeService.stores$.subscribe(stores => {
       this.storesSource = stores;
     });
-
     this.getAllSensors();
     this.getAllWastes();
   }
@@ -94,6 +97,7 @@ export class ControlPanelComponent implements AfterViewInit, OnInit{
   }
 
   // Get all from api
+
 
   private getAllSensors() {
     this.sensorService.getAll().subscribe((sensors: Array<Sensor>) => {

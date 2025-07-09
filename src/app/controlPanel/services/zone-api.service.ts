@@ -16,8 +16,8 @@ export class ZoneApiService extends BaseService<Store>{
 
   constructor() {
     super();
+    this.serviceBaseUrl = environment.apiBaseUrl;
     this.resourceEndPoint = zonesEndPointPath;
-    this.loadStores();
   }
 
   loadStores() {

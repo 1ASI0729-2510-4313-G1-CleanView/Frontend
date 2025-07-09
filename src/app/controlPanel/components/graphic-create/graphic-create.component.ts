@@ -300,7 +300,7 @@ export class GraphicCreateComponent implements OnInit, AfterViewInit{
         this.sensorsSource.forEach(sensorAux => {
           amount = 0
           if (sensorAux.id == sensor) {
-            sensorAux.wasteIds.forEach(waste => {
+            sensorAux.wastesId.forEach(waste => {
               this.wastesSource.forEach(wasteAux => {
                 if (wasteAux.id === waste){
                   amount += wasteAux.amount
@@ -310,7 +310,7 @@ export class GraphicCreateComponent implements OnInit, AfterViewInit{
 
             const sensorCapacity = parseFloat(sensorAux.capacity);
             if (sensorCapacity > 0) {
-              const percentage = ((amount / sensorCapacity) * 100) / sensorAux.wasteIds.length;
+              const percentage = ((amount / sensorCapacity) * 100) / sensorAux.wastesId.length;
               sensorAux.percentage = `${percentage.toFixed(0)}%`;
 
               this.sensorService.updateSensorLocally(sensorAux);
