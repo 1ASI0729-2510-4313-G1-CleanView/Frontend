@@ -4,7 +4,6 @@ import { TranslateModule } from '@ngx-translate/core';
 import {MatIcon} from "@angular/material/icon";
 import Swal from 'sweetalert2'
 import {Store} from "../../model/store.entity";
-import { v4 as uuidv4 } from 'uuid';
 import {Sensor} from "../../model/sensor.entity";
 import {Waste} from "../../model/waste.entity";
 import {ZoneApiService} from "../../services/zone-api.service";

@@ -141,23 +141,25 @@ export class StoreDeleteComponent implements OnInit{
       }).then((result) => {
         if (result.isConfirmed) {
           this.storeSelected = storeAux.name;
-          this.getSensorData();
+          if(storeAux.amountSensor > 0 && storeAux.sensorIds.length > 0){
+            this.getSensorData();
 
-          this.sensorAux.forEach(sa=> {
-            this.sensorService.deleteSensor(sa.id).subscribe();
-          })
+            this.sensorAux.forEach(sa=> {
+              this.sensorService.deleteSensor(sa.id).subscribe();
+            })
 
-          this.sensorAux.forEach(sasc => {
-            sasc.wasteIds.forEach(waste => {
-              this.wastesSource.forEach(wasteAux => {
-                if (wasteAux.id === waste){
-                  this.wasteService.delete(wasteAux.id).subscribe((response: Waste) => {
-                    console.log(response)
-                  })
-                }
+            this.sensorAux.forEach(sasc => {
+              sasc.wastesId.forEach(waste => {
+                this.wastesSource.forEach(wasteAux => {
+                  if (wasteAux.id === waste){
+                    this.wasteService.delete(wasteAux.id).subscribe((response: Waste) => {
+                      console.log(response)
+                    })
+                  }
+                })
               })
             })
-          })
+          }
 
           this.storeService.deleteStore(storeAux.id).subscribe();
 

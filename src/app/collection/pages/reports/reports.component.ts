@@ -56,7 +56,6 @@ export class ReportsComponent implements OnInit {
       anio: 'Año',
       historial: 'Historial de Recojos',
       zona: 'Zona',
-      tipo: 'Tipo de residuo',
       kg: 'Kg recolectados',
       fecha: 'Última recolección',
       meses: [
@@ -72,7 +71,6 @@ export class ReportsComponent implements OnInit {
       anio: 'Year',
       historial: 'Collection History',
       zona: 'Zone',
-      tipo: 'Waste type',
       kg: 'Collected Kg',
       fecha: 'Last collection',
       meses: [
@@ -109,11 +107,11 @@ export class ReportsComponent implements OnInit {
               if (sensorAux.id === sensor){
                 this.rows.push({
                   zona: zone.name,
-                  tipo: sensorAux.typeSensor || '-',
-                  kg: (sensorAux.currentLevel ? sensorAux.currentLevel + ' kg' : '-'),
-                  fecha: sensorAux.lastReadingDate || '-',
-                  mes: this.getMes(sensorAux.lastReadingDate ),
-                  anio: this.getAnio(sensorAux.lastReadingDate)
+                  kg: (sensorAux.currentCapacity ? sensorAux.currentCapacity + ' kg' : '-'),
+                  tipo: '',
+                  fecha: '',
+                  mes: '',
+                  anio: ''
                 });
               }
             })
@@ -163,7 +161,6 @@ export class ReportsComponent implements OnInit {
     autoTable(doc, {
       head: [[
         this.textos[this.idioma].zona,
-        this.textos[this.idioma].tipo,
         this.textos[this.idioma].kg,
         this.textos[this.idioma].fecha
       ]],
@@ -176,7 +173,6 @@ export class ReportsComponent implements OnInit {
   exportExcel() {
     const worksheet = XLSX.utils.json_to_sheet(this.filteredRows.map(row => ({
       [this.textos[this.idioma].zona]: row.zona,
-      [this.textos[this.idioma].tipo]: row.tipo,
       [this.textos[this.idioma].kg]: row.kg,
       [this.textos[this.idioma].fecha]: row.fecha
     })));

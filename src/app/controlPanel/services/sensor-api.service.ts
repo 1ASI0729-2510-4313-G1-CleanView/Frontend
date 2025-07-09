@@ -17,6 +17,7 @@ export class SensorApiService extends BaseService<Sensor>{
 
   constructor() {
     super();
+    this.serviceBaseUrl = environment.apiBaseUrl;
     this.resourceEndPoint = sensorEndPointPath;
     this.loadSensors();
   }
@@ -32,13 +33,20 @@ export class SensorApiService extends BaseService<Sensor>{
     });
   }
 
-  createSensor(sensor: Sensor): Observable<Sensor> {
-    return this.create(sensor).pipe(
-      tap(newSensor => {
-        const currentSensors = this.sensorSubject.value;
-        this.sensorSubject.next([...currentSensors, newSensor]);
-      })
-    );
+  createSensor(sensor: Sensor) {
+    return new Observable<Sensor>(observer => {
+      this.create(sensor).subscribe({
+        next: (newSensor: Sensor) => {
+          const currentSensors = this.sensorSubject.value;
+          this.sensorSubject.next([...currentSensors, newSensor]);
+          observer.next(newSensor);
+          observer.complete();
+        },
+        error: (err) => {
+          observer.error(err);
+        }
+      });
+    })
   }
 
   deleteSensor(id: number): Observable<void> {

@@ -6,7 +6,6 @@
         <ul *ngFor="let sensor of sensorAux"  class="sensor-list-item" >
           <h6> <strong> {{ 'controlPanel.num-sensor' | translate}}:</strong> {{sensor.serialNumber}}</h6>
           <li> {{ 'controlPanel.ubication' | translate }}: {{sensor.location}} </li>
-          <li> {{ 'controlPanel.status' | translate }}: {{sensor.status}} </li>
           <li> {{ 'controlPanel.percentage' | translate }}: {{sensor.percentage}} </li>
         </ul>
       </ng-container>

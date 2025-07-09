@@ -125,7 +125,7 @@ export class SensorDeleteComponent implements OnInit{
                 })
 
                 //delete waste from Sensor
-                sensorAux.wasteIds.forEach(waste => {
+                sensorAux.wastesId.forEach(waste => {
                   this.wastesSource.forEach(wasteAux => {
                     if (wasteAux.id === waste){
                       this.wasteService.delete(wasteAux.id).subscribe((response: Waste) => {

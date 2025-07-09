@@ -16,6 +16,7 @@ export class WasteApiService extends BaseService<Waste>{
 
   constructor() {
     super();
+    this.serviceBaseUrl = environment.apiBaseUrl;
     this.resourceEndPoint = wasteEndPointPath;
   }
 

@@ -4,15 +4,14 @@ import { TranslateModule } from '@ngx-translate/core';
 import {MatIcon} from "@angular/material/icon";
 import {GraphicCreateComponent} from "../graphic-create/graphic-create.component";
 import {Store} from "../../model/store.entity";
-import { v4 as uuidv4 } from 'uuid';
 import {Waste} from "../../model/waste.entity";
 import {Sensor} from "../../model/sensor.entity";
 import {GraphicService} from "../../services/graphic.service";
 import {ZoneApiService} from "../../services/zone-api.service";
 import {SensorApiService} from "../../services/sensor-api.service";
 import {WasteApiService} from "../../services/waste-api.service";
-import {interval} from "rxjs";
 import {FormsModule} from "@angular/forms";
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-sensor-create-and-edit',
@@ -64,7 +63,9 @@ export class SensorCreateAndEditComponent implements OnInit{
       this.sensorsSource = sensors;
     });
 
-    this.getAllWastes();
+    this.wasteService.waste$.subscribe(waste => {
+      this.wastesSource = waste;
+    })
   }
 
   getStoreNameFromFthr(e: string){
@@ -136,7 +137,7 @@ export class SensorCreateAndEditComponent implements OnInit{
        * Different name for every waste
        * @param: typeWaste.value
        * */
-      switch (this.selectedType.toLowerCase()){
+      switch (typeWaste.value.toLowerCase()){
         case 'glass':
           nameWaste = this.randomFrom(GlassWastesList);
           break;
@@ -159,11 +160,12 @@ export class SensorCreateAndEditComponent implements OnInit{
       let amountWaste = Math.floor(Math.random() * 80 + 25);
 
       let newWaste = new Waste({
-        id: idWaste,
-        typeWaste: typeWaste.value,
+        id: this.wastesSource.length + 1 + i,
         name: nameWaste,
+        type: typeWaste.value,
         amount: amountWaste
       })
+
       arrayWaste.push(newWaste);
     }
 
@@ -191,42 +193,83 @@ export class SensorCreateAndEditComponent implements OnInit{
     /*
     * Connect waste with sensors && creation of one sensor
     **/
+
+    let slocation = ubication.value.trim();
+    let sunits = unities.value.trim();
+    let scapacity = capacities.toString();
+    let scurrentCapacity = currentLevel.toString();
+    /**
+     * adding wastes
+     * */
     arrayWaste.forEach(aw => {
-      this.wasteService.createWaste(aw).subscribe();
+      this.wasteService.createWaste(aw).subscribe({
+        next: () => {
+          console.log(aw);
+        }
+      });
+
+      let newSensor = new Sensor({
+        wastesId:arrayWaste.map(wi=>wi.id),
+        serialNumber: generateSerialNumber(),
+        location: slocation,
+        battery: 100,
+        units: sunits,
+        capacity: scapacity,
+        currentCapacity: scurrentCapacity,
+        percentage: "0%",
+        collection: "No"
+      })
+
+      console.log(newSensor);
+
+      this.sensorService.createSensor(newSensor).subscribe({
+        next: () => {
+          /**
+           * adding sensor
+           * */
+          this.sensorsSource.filter(ss =>{
+            if (ss.serialNumber === newSensor.serialNumber){
+              this.storesSource.forEach(s => {
+                if (s.name === this.sensorSelected){
+                  if (!s.sensorIds) {
+                    s.sensorIds = [];
+                  }
+                  s.sensorIds.push(s.id);
+                  s.amountSensor++;
+                  /**
+                   * adding store
+                   * */
+                  this.storeService.update(s.id, s).subscribe(() => {
+                    this.storeService.updateStoreLocally(s);
+
+                    let form = this.formAddSensorRef.nativeElement;
+                    form.classList.toggle('return-to-hide');
+                    typeWaste.value = '';
+                    ubication.value = '';
+                    unities.value = '';
+
+                    this.graphicService.triggerRedraw();
+                  });
+                }
+              })
+            }
+          })
+        },
+        error: (err) => {
+          console.error('Error ', err);
+        }
+      });
+
     })
 
-    let newSensor = new Sensor({id: id, serialNumber: generateSerialNumber(), wasteIds:arrayWaste.map(wi=>wi.id),
-      location: ubication.value, status: "Active", batteryLevel: 100,
-      lastReadingDate: currentDate.toDateString(), typeSensor: "waste detection",
-      units: unities.value, capacity: capacities.toString(),
-      currentLevel: currentLevel.toString(), percentage: "",
-      collection: "No"
-    })
+
+
+
 
     /*
     * Active the graphic with the new sensor
     * */
-    this.sensorService.createSensor(newSensor).subscribe({
-      next: () => {
-        store[0].sensorIds.push(id);
-        store[0].amountSensor++;
 
-        this.storeService.update(store[0].id, store[0]).subscribe(() => {
-          this.storeService.updateStoreLocally(store[0]);
-
-          let form = this.formAddSensorRef.nativeElement;
-          form.classList.toggle('return-to-hide');
-          typeWaste.value = '';
-          ubication.value = '';
-          unities.value = '';
-
-          this.graphicService.triggerRedraw();
-        });
-      },
-      error: (err) => {
-        console.error('Error ', err);
-      }
-    });
 
     this.graphicService.triggerRedraw();
 
